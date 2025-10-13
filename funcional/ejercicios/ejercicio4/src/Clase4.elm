@@ -67,7 +67,9 @@ esVacio arbol =
 
 esHoja : Tree a -> Bool
 esHoja arbol =
-    F
+    case arbol of 
+        Node _ Empty Empty -> True
+        _ -> False
 
 
 -- ============================================================================
@@ -78,8 +80,8 @@ esHoja arbol =
 -- 4. Tamaño del Árbol
 
 
-tamaño : Tree a -> Int
-tamaño arbol =
+tamano : Tree a -> Int
+tamano arbol =
     0
 
 
