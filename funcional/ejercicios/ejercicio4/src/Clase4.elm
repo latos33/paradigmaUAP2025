@@ -161,18 +161,33 @@ maximo arbol =
 
 -- 11. Buscar Valor
 
-
 buscar : a -> Tree a -> Maybe a
 buscar valor arbol =
-    Nothing
+    case arbol of
+        Empty -> Nothing
+        Node v izq der -> 
+            if v == valor 
+                then Just v     
+                else 
+                    case buscar valor izq of 
+                        Just v -> Just v 
+                        Nothing -> buscar valor der 
 
 
 -- 12. Encontrar Mínimo (con Maybe)
 
 
-encontrarMinimo : Tree comparable -> Maybe comparable
+encontrarMinimo : Tree Int -> Maybe Int
 encontrarMinimo arbol =
-    Nothing
+    case arbol of 
+        Empty -> Nothing
+        Node v Empty Empty -> Just v 
+        Node v izq der -> case ((encontrarMinimo izq), (encontrarMinimo der)) of
+            (Nothing, Nothing) -> Just v
+            (Just minIzq, Nothing) -> Just (min v minIzq)
+            (Nothing, Just minDer) -> Just (min v minDer)
+            (Just minIzq, Just minDer) -> Just (min v(min minIzq minDer))
+        
 
 
 -- 13. Encontrar Máximo (con Maybe)
@@ -196,7 +211,9 @@ buscarPor predicado arbol =
 
 raiz : Tree a -> Maybe a
 raiz arbol =
-    Nothing
+    case arbol of 
+        Empty -> Nothing
+        Node v _ _ -> Just v 
 
 
 -- 16. Obtener Hijo Izquierdo
@@ -204,12 +221,18 @@ raiz arbol =
 
 hijoIzquierdo : Tree a -> Maybe (Tree a)
 hijoIzquierdo arbol =
-    Nothing
+    case arbol of
+        Empty -> Nothing
+        Node _ Empty _ -> Nothing
+        Node _ izq _ -> Just izq 
 
 
 hijoDerecho : Tree a -> Maybe (Tree a)
 hijoDerecho arbol =
-    Nothing
+    case arbol of
+        Empty -> Nothing
+        Node _ _ Empty -> Nothing
+        Node _ _ der -> Just der 
 
 
 -- 17. Obtener Nieto
@@ -217,7 +240,10 @@ hijoDerecho arbol =
 
 nietoIzquierdoIzquierdo : Tree a -> Maybe (Tree a)
 nietoIzquierdoIzquierdo arbol =
-    Nothing
+Maybe.andThen (hijoIzquierdo) (hijoIzquierdo arbol)
+    case hijoIzquierdo arbol of
+        Nothing -> Nothing 
+        Just hijo -> hijoIzquierdo hijo
 
 
 -- 18. Buscar en Profundidad
