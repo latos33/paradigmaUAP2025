@@ -56,7 +56,10 @@ arbolMediano =
 
 esVacio : Tree a -> Bool
 esVacio arbol =
-    False
+    case arbol of 
+
+        Empty -> True
+        Node _ _ _ -> False
 
 
 -- 3. Es Hoja
@@ -64,7 +67,7 @@ esVacio arbol =
 
 esHoja : Tree a -> Bool
 esHoja arbol =
-    False
+    F
 
 
 -- ============================================================================
