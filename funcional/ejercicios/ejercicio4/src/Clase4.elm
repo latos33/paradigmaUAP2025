@@ -92,7 +92,9 @@ tamano arbol =
 
 altura : Tree a -> Int
 altura arbol =
-    0
+    case arbol of
+        Empty -> 0
+        Node _ izq der -> (max (altura izq)(altura der)) + 1 
 
 
 -- 6. Suma de Valores
@@ -100,7 +102,9 @@ altura arbol =
 
 sumarArbol : Tree Int -> Int
 sumarArbol arbol =
-    0
+    case arbol of 
+        Empty -> 0
+        Node valor izq der -> (sumarArbol izq) + (sumarArbol der) + valor
 
 
 -- 7. Contiene Valor
@@ -108,7 +112,9 @@ sumarArbol arbol =
 
 contiene : a -> Tree a -> Bool
 contiene valor arbol =
-    False
+    case arbol of
+        Empty -> False
+        Node v izq der -> if v == valor || (contiene valor izq) || (contiene valor der)
 
 
 -- 8. Contar Hojas
@@ -116,7 +122,10 @@ contiene valor arbol =
 
 contarHojas : Tree a -> Int
 contarHojas arbol =
-    0
+    case arbol of 
+        Empty -> 0
+        Node _ Empty Empty -> 1
+        Node _ izq der -> (contarHojas izq) + (contarHojas der)
 
 
 -- 9. Valor Mínimo (sin Maybe)
@@ -124,7 +133,12 @@ contarHojas arbol =
 
 minimo : Tree Int -> Int
 minimo arbol =
-    0
+    case arbol of
+        Empty -> 0
+        Node v Empty Empty -> v
+        Node v Empty der -> (min v (min der))
+        Node v izq Empty -> (min v (min izq))
+        Node v izq der -> (min v (min (minimo izq) (minimo der)))
 
 
 -- 10. Valor Máximo (sin Maybe)
@@ -132,7 +146,12 @@ minimo arbol =
 
 maximo : Tree Int -> Int
 maximo arbol =
-    0
+    case arbol of
+        Empty -> 0
+        Node v Empty Empty -> v
+        Node v Empty der -> (min v (min der))
+        Node v izq Empty -> (min v (min izq))
+        Node v izq der -> (max v (max (maximo izq) (maximo der)))
 
 
 -- ============================================================================
