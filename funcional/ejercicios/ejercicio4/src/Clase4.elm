@@ -82,7 +82,9 @@ esHoja arbol =
 
 tamano : Tree a -> Int
 tamano arbol =
-    0
+    case arbol of
+        Empty -> 0
+        Node _ left right -> (tamano left) + (tamano right) + 1
 
 
 -- 5. Altura del Árbol
