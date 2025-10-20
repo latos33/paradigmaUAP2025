@@ -86,8 +86,7 @@ miFoldl fx acumulador lista =
 
 duplicar : List Int -> List Int
 duplicar lista =
-    miFoldl (\elem _ -> [elem * 2]) [] lista
-
+    miMap(\elem -> elem * 2) lista
 
 
 -- 5. Longitudes de Strings
@@ -96,12 +95,10 @@ duplicar lista =
 
 longitudes : List String -> List Int
 longitudes lista =
-    case lista of
-        [] ->
-            []
+    miMap(\elem -> elem.length) lista
 
-        h :: t ->
-            String.length h :: longitudes t
+ 
+    
 
 
 
@@ -111,7 +108,7 @@ longitudes lista =
 
 incrementarTodos : List Int -> List Int
 incrementarTodos lista =
-   miFoldl(\elem _ -> [elem + 1]) [] lista 
+   miMap(\elem-> elem + 1) [] lista 
 
 
 
@@ -121,7 +118,7 @@ incrementarTodos lista =
 
 todasMayusculas : List String -> List String
 todasMayusculas lista =
-    miFoldl(\elem _ -> [String.toUpper elem]) [] lista
+    miMap(\elem -> String.toUpper elem) [] lista
 
 
 
@@ -131,7 +128,7 @@ todasMayusculas lista =
 
 negarTodos : List Bool -> List Bool
 negarTodos lista =
-    miFoldl(\elem _ -> [not elem]) [] lista -- El operador not infierte un valor booleano
+    miMap(\elem -> not elem) [] lista -- El operador not infierte un valor booleano
 
 
 
