@@ -284,8 +284,9 @@ alguno predicado lista =
 
 sumaDeCuadrados : List Int -> Int
 sumaDeCuadrados lista =
-    0
-
+    let cuadrados = miMap(\elem -> elem * elem) 
+    in
+    miFoldl(\elem acum -> acum + elem) 0 cuadrados
 
 
 -- 23. Contar Números Pares
@@ -294,8 +295,9 @@ sumaDeCuadrados lista =
 
 contarPares : List Int -> Int
 contarPares lista =
-    0
-
+    let pares = miFiltro(\elem -> elem % 2 == 0) lista
+    in
+    miFoldl(\elem acum -> acum +1) 0 pares
 
 
 -- 24. Promedio
@@ -304,7 +306,12 @@ contarPares lista =
 
 promedio : List Float -> Float
 promedio lista =
-    0
+    if isEmpty lista then 0
+    else
+        let suma = miFoldl(\elem acum -> acum + elem) 0 lista
+            cantidad = miFoldl(\elem acum -> acum + 1) 0 lista
+        in
+        suma / toFloat cantidad
 
 
 
@@ -314,7 +321,9 @@ promedio lista =
 
 longitudesPalabras : String -> List Int
 longitudesPalabras oracion =
-    []
+    let palabras = String.words oracion
+    in
+    miMap(\elem -> String.length elem) palabras
 
 
 
@@ -324,7 +333,9 @@ longitudesPalabras oracion =
 
 palabrasLargas : String -> List String
 palabrasLargas oracion =
-    []
+    let palabras = String.words oracion
+    in
+    miFIltro(/elem -> String.length elem > 3) palabras
 
 
 
@@ -334,8 +345,9 @@ palabrasLargas oracion =
 
 sumarPositivos : List Int -> Int
 sumarPositivos lista =
-    0
-
+    let positivos = miFiltro(\elem -> elem > 0) lista
+    in
+    miFoldl(\elem acum -> acum + elem) 0 positivos
 
 
 -- 28. Duplicar Pares
