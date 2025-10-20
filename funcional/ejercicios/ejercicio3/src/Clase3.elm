@@ -198,7 +198,8 @@ mayoresQue valor lista =
 
 sumaFold : List Int -> Int
 sumaFold lista =
-    0
+    miFoldl (\elem acum -> elem + acum) 0 lista
+    
 
 
 
@@ -208,7 +209,7 @@ sumaFold lista =
 
 producto : List Int -> Int
 producto lista =
-    1
+    miFoldl (\elem acum -> elem*acum) 0 lista
 
 
 
@@ -218,7 +219,7 @@ producto lista =
 
 contarFold : List a -> Int
 contarFold lista =
-    0
+    miFoldl (\elem acum -> acum+1) 0 lista
 
 
 
@@ -228,7 +229,7 @@ contarFold lista =
 
 concatenar : List String -> String
 concatenar lista =
-    ""
+    miFoldl (\elem acum -> acum ++ elem) "" lista
 
 
 
@@ -238,17 +239,16 @@ concatenar lista =
 
 maximo : List Int -> Int
 maximo lista =
-    0
+    
 
-
-
+miFoldl (\elem acum -> if elem > acum then elem else acum) 0 listas
 -- 19. Invertir con Fold
 -- Invertí una lista usando List.foldl
 
 
 invertirFold : List a -> List a
 invertirFold lista =
-    []
+    miFoldl (\elem acum -> elem :: acum) [] lista
 
 
 
@@ -258,9 +258,9 @@ invertirFold lista =
 
 todos : (a -> Bool) -> List a -> Bool
 todos predicado lista =
-   -- miFoldl(\elem acum -> (predicado elm)) True
+    miFoldl(\elem acum -> if predicado elem then acum else False) True lista
 
-    True
+    
 
 
 -- 21. Alguno Verdadero
@@ -269,7 +269,7 @@ todos predicado lista =
 
 alguno : (a -> Bool) -> List a -> Bool
 alguno predicado lista =
-    False
+    miFoldl(\elem acum -> if predicado elem then True else acum) False lista
 
 
 
