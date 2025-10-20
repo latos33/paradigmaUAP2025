@@ -121,7 +121,7 @@ incrementarTodos lista =
 
 todasMayusculas : List String -> List String
 todasMayusculas lista =
-    []
+    miFoldl(\elem _ -> [String.toUpper elem]) [] lista
 
 
 
@@ -131,7 +131,7 @@ todasMayusculas lista =
 
 negarTodos : List Bool -> List Bool
 negarTodos lista =
-    []
+    miFoldl(\elem _ -> [not elem]) [] lista -- El operador not infierte un valor booleano
 
 
 
@@ -146,8 +146,7 @@ negarTodos lista =
 
 pares : List Int -> List Int
 pares lista =
-    []
-
+    miFiltro (\elem -> elem % 2 == 0) lista
 
 
 -- 10. Números Positivos
@@ -156,7 +155,7 @@ pares lista =
 
 positivos : List Int -> List Int
 positivos lista =
-    []
+    miFiltro (\elem -> elem > 0) lista
 
 
 
@@ -166,7 +165,8 @@ positivos lista =
 
 stringsLargos : List String -> List String
 stringsLargos lista =
-    []
+     miFiltro (\elem -> String.length elem > 5) lista
+    
 
 
 
@@ -176,7 +176,7 @@ stringsLargos lista =
 
 soloVerdaderos : List Bool -> List Bool
 soloVerdaderos lista =
-    []
+    miFiltro (\elem -> elem == True) lista
 
 
 
@@ -186,7 +186,7 @@ soloVerdaderos lista =
 
 mayoresQue : Int -> List Int -> List Int
 mayoresQue valor lista =
-    []
+    miFiltro (\elem -> elem > valor) lista
 
 
 
