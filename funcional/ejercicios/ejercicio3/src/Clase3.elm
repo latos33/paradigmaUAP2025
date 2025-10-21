@@ -356,7 +356,10 @@ sumarPositivos lista =
 
 duplicarPares : List Int -> List Int
 duplicarPares lista =
-    []
+    let pares = miFiltro(\elem -> elem % 2 == 0) lista
+    in
+    miMap(\elem -> elem * 2) pares
+    
 
 
 
@@ -371,7 +374,11 @@ duplicarPares lista =
 
 aplanar : List (List a) -> List a
 aplanar lista =
-    []
+
+  case lista of
+    [] -> [] 
+    h::t -> h ++ (aplanarLista t)
+
 
 
 
@@ -381,8 +388,19 @@ aplanar lista =
 
 
 agruparPor : (a -> a -> Bool) -> List a -> List (List a)
-agruparPor comparador lista =
-    []
+agruparPor comparador lista = 
+    case lista of
+        [] ->
+            []
+
+        x :: xs ->
+            let
+                (iguales, resto) =
+                    span (\y -> y == x) xs
+            in
+            (x :: iguales) :: agruparPor resto
+
+    
 
 
 
@@ -392,7 +410,7 @@ agruparPor comparador lista =
 
 particionar : (a -> Bool) -> List a -> ( List a, List a )
 particionar predicado lista =
-    ( [], [] )
+    ( miFiltro predicado lista, miFiltro (\elem -> not (predicado elem)) lista )
 
 
 
@@ -402,7 +420,17 @@ particionar predicado lista =
 
 sumaAcumulada : List Int -> List Int
 sumaAcumulada lista =
-    []
+    case lista of
+        [] -> []
+        x :: xs ->
+            let
+                parcial = sumaAcumulada xs
+            in
+            case parcial of
+                [] ->
+                    [x]
+                y :: _ ->
+                    x :: miMap (\n -> n + x) parcial
 
 
 
