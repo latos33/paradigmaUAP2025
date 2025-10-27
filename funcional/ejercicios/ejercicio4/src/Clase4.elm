@@ -195,7 +195,15 @@ encontrarMinimo arbol =
 
 encontrarMaximo : Tree comparable -> Maybe comparable
 encontrarMaximo arbol =
-    Nothing
+    case arbol of 
+        Empty -> Nothing
+        Node v Empty Empty -> Just v 
+        Node v izq der -> case ((encontrarMaximo izq), (encontrarMaximo der)) of
+            (Nothing, Nothing) -> Just v
+            (Just maxIzq, Nothing) -> Just (max v maxIzq)
+            (Nothing, Just maxDer) -> Just (max v maxDer)
+            (Just maxIzq, Just maxDer) -> Just (max v(max maxIzq maxDer))
+        
 
 
 -- 14. Buscar Por Predicado
@@ -203,7 +211,17 @@ encontrarMaximo arbol =
 
 buscarPor : (a -> Bool) -> Tree a -> Maybe a
 buscarPor predicado arbol =
-    Nothing
+    case arbol of
+        Empty -> Nothing
+        Nose v izq der -> 
+            if predicado v 
+                then Just v 
+                else 
+                    case buscarPor predicado izq of 
+                        Just v -> Just v 
+                        Nothing -> buscarPor predicado der
+
+    
 
 
 -- 15. Obtener Valor de Raíz
@@ -240,10 +258,10 @@ hijoDerecho arbol =
 
 nietoIzquierdoIzquierdo : Tree a -> Maybe (Tree a)
 nietoIzquierdoIzquierdo arbol =
-Maybe.andThen (hijoIzquierdo) (hijoIzquierdo arbol)
-    case hijoIzquierdo arbol of
-        Nothing -> Nothing 
-        Just hijo -> hijoIzquierdo hijo
+Maybe.andThen hijoIzquierdo (hijoIzquierdo arbol)
+    -- case hijoIzquierdo arbol of
+    --     Nothing -> Nothing 
+    --     Just hijo -> hijoIzquierdo hijo
 
 
 -- 18. Buscar en Profundidad
@@ -251,12 +269,20 @@ Maybe.andThen (hijoIzquierdo) (hijoIzquierdo arbol)
 
 obtenerSubarbol : a -> Tree a -> Maybe (Tree a)
 obtenerSubarbol valor arbol =
-    Nothing
+    case arbol of 
+        Empty -> Nothing
+        Node v izq der -> 
+            if v == valor 
+                then just arbol
+                else 
+                    case obtenerSubarbol valor izq of 
+                        Just subarbol -> Just subarbol
+                        Nothing -> obtenerSubarbol valor der
 
 
 buscarEnSubarbol : a -> a -> Tree a -> Maybe a
 buscarEnSubarbol valor1 valor2 arbol =
-    Nothing
+    Maybe.andThen (obtenerSubarbol valor1 arbol) (buscar valor2)
 
 
 -- ============================================================================
@@ -269,7 +295,9 @@ buscarEnSubarbol valor1 valor2 arbol =
 
 validarNoVacio : Tree a -> Result String (Tree a)
 validarNoVacio arbol =
-    Err "El árbol está vacío"
+    case arbol of 
+        node _ __ -> ok arbol
+        Empty -> Err "El árbol está vacío"
 
 
 -- 20. Obtener Raíz con Error
@@ -277,7 +305,9 @@ validarNoVacio arbol =
 
 obtenerRaiz : Tree a -> Result String a
 obtenerRaiz arbol =
-    Err "No se puede obtener la raíz de un árbol vacío"
+    case arbol of 
+    Empty -> Err "No se puede obtener la raíz de un árbol vacío"
+    Node v _ _ -> Ok v
 
 
 -- 21. Dividir en Valor Raíz y Subárboles
@@ -285,7 +315,10 @@ obtenerRaiz arbol =
 
 dividir : Tree a -> Result String ( a, Tree a, Tree a )
 dividir arbol =
-    Err "No se puede dividir un árbol vacío"
+    case arbol of 
+    Empty -> Err "No se puede dividir un árbol vacío"
+    Node v izq der -> Ok (v, izq, der)
+
 
 
 -- 22. Obtener Mínimo con Error
@@ -293,7 +326,15 @@ dividir arbol =
 
 obtenerMinimo : Tree comparable -> Result String comparable
 obtenerMinimo arbol =
-    Err "No hay mínimo en un árbol vacío"
+    case arbol of
+    Empty -> Err "No hay mínimo en un árbol vacío"
+    Node v Empty Empty -> Ok v
+    Node v izq der -> 
+        case ((obtenerMinimo izq), (obtenerMinimo der)) of
+            (Err e, Err f) -> Ok v
+            (Ok minIzq, Err f) -> Ok (min v minIzq)
+            (Err e, Ok minDer) -> Ok (min v minDer)
+            (Ok minIzq, Ok minDer) -> Ok (min v(min minIzq minDer))
 
 
 -- 23. Verificar si es BST

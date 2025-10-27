@@ -143,7 +143,7 @@ negarTodos lista =
 
 pares : List Int -> List Int
 pares lista =
-    miFiltro (\elem -> elem % 2 == 0) lista
+    miFiltro (\elem -> elem modBy 2 == 0) lista
 
 
 -- 10. Números Positivos
@@ -238,8 +238,7 @@ concatenar lista =
 
 
 maximo : List Int -> Int
-maximo lista =
-    
+maximo lista = 
 
 miFoldl (\elem acum -> if elem > acum then elem else acum) 0 listas
 -- 19. Invertir con Fold
@@ -295,7 +294,7 @@ sumaDeCuadrados lista =
 
 contarPares : List Int -> Int
 contarPares lista =
-    let pares = miFiltro(\elem -> elem % 2 == 0) lista
+    let pares = miFiltro(\elem -> elem modBy 2 == 0) lista
     in
     miFoldl(\elem acum -> acum +1) 0 pares
 
