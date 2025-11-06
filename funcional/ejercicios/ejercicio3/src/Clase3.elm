@@ -95,7 +95,7 @@ duplicar lista =
 
 longitudes : List String -> List Int
 longitudes lista =
-    miMap(\elem -> elem.length) lista
+    miMap(\elem -> elem.length) lista 
 
  
     
@@ -239,7 +239,6 @@ concatenar lista =
 
 maximo : List Int -> Int
 maximo lista = 
-
 miFoldl (\elem acum -> if elem > acum then elem else acum) 0 listas
 -- 19. Invertir con Fold
 -- Invertí una lista usando List.foldl
@@ -334,7 +333,7 @@ palabrasLargas : String -> List String
 palabrasLargas oracion =
     let palabras = String.words oracion
     in
-    miFIltro(/elem -> String.length elem > 3) palabras
+    miFiltro(\elem -> String.length elem > 3) palabras
 
 
 
@@ -355,7 +354,7 @@ sumarPositivos lista =
 
 duplicarPares : List Int -> List Int
 duplicarPares lista =
-    let pares = miFiltro(\elem -> elem % 2 == 0) lista
+    let pares = miFiltro(\elem -> elem modBy 2 == 0) lista
     in
     miMap(\elem -> elem * 2) pares
     
@@ -375,8 +374,11 @@ aplanar : List (List a) -> List a
 aplanar lista =
 
   case lista of
-    [] -> [] 
-    h::t -> h ++ (aplanarLista t)
+    [] ->
+        []
+
+    h :: t ->
+        h ++ aplanar t
 
 
 

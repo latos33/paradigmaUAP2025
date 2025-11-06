@@ -10,6 +10,7 @@ Temas:
 - Mónada Result para manejo de errores
 - Composición monádica con andThen
 -}
+import Platform.Sub exposing (none)
 
 
 -- ============================================================================
@@ -115,6 +116,8 @@ contiene valor arbol =
     case arbol of
         Empty -> False
         Node v izq der -> if v == valor || (contiene valor izq) || (contiene valor der)
+                        then True
+                        else False
 
 
 -- 8. Contar Hojas
@@ -211,16 +214,17 @@ encontrarMaximo arbol =
 
 buscarPor : (a -> Bool) -> Tree a -> Maybe a
 buscarPor predicado arbol =
+   
     case arbol of
         Empty -> Nothing
-        Nose v izq der -> 
+        Node v izq der -> 
             if predicado v 
-                then Just v 
+                then Just v     
                 else 
                     case buscarPor predicado izq of 
                         Just v -> Just v 
                         Nothing -> buscarPor predicado der
-
+                        
     
 
 
@@ -258,10 +262,11 @@ hijoDerecho arbol =
 
 nietoIzquierdoIzquierdo : Tree a -> Maybe (Tree a)
 nietoIzquierdoIzquierdo arbol =
-Maybe.andThen hijoIzquierdo (hijoIzquierdo arbol)
-    -- case hijoIzquierdo arbol of
-    --     Nothing -> Nothing 
-    --     Just hijo -> hijoIzquierdo hijo
+    case arbol of
+        Node _ (Node _ nieto _) _ ->
+            Just nieto
+
+        _ ->Nothing
 
 
 -- 18. Buscar en Profundidad
@@ -273,7 +278,7 @@ obtenerSubarbol valor arbol =
         Empty -> Nothing
         Node v izq der -> 
             if v == valor 
-                then just arbol
+                then Just arbol
                 else 
                     case obtenerSubarbol valor izq of 
                         Just subarbol -> Just subarbol
@@ -282,7 +287,10 @@ obtenerSubarbol valor arbol =
 
 buscarEnSubarbol : a -> a -> Tree a -> Maybe a
 buscarEnSubarbol valor1 valor2 arbol =
-    Maybe.andThen (obtenerSubarbol valor1 arbol) (buscar valor2)
+    case obtenerSubarbol valor1 arbol of 
+        Just subarbol -> buscar valor2 subarbol
+        Nothing -> Nothing
+        
 
 
 -- ============================================================================
@@ -296,8 +304,9 @@ buscarEnSubarbol valor1 valor2 arbol =
 validarNoVacio : Tree a -> Result String (Tree a)
 validarNoVacio arbol =
     case arbol of 
-        node _ __ -> ok arbol
-        Empty -> Err "El árbol está vacío"
+    Empty -> Err "El árbol está vacío"
+    Node _ _ _ -> Ok arbol
+
 
 
 -- 20. Obtener Raíz con Error
@@ -342,7 +351,43 @@ obtenerMinimo arbol =
 
 esBST : Tree comparable -> Bool
 esBST arbol =
-    False
+    esBSTConRango arbol Nothing Nothing
+
+
+esBSTConRango : Tree comparable -> Maybe comparable -> Maybe comparable -> Bool
+esBSTConRango arbol minVal maxVal =
+    case arbol of
+        Empty ->
+            True
+
+        Node valor izq der ->
+            let
+                dentroDeRango =
+                    case minVal of
+                        Just minimo ->
+                            valor > minimo
+
+                        Nothing ->
+                            True
+            in
+            if not dentroDeRango then
+                False
+            else
+                let
+                    dentroDeRango2 =
+                        case maxVal of
+                            Just maximo ->
+                                valor < maximo
+
+                            Nothing ->
+                                True
+                in
+                if not dentroDeRango2 then
+                    False
+                else
+                    esBSTConRango izq minVal (Just valor)
+                        && esBSTConRango der (Just valor) maxVal
+
 
 
 -- 24. Insertar en BST
@@ -350,7 +395,30 @@ esBST arbol =
 
 insertarBST : comparable -> Tree comparable -> Result String (Tree comparable)
 insertarBST valor arbol =
-    Err "El valor ya existe en el árbol"
+    case arbol of
+        Empty ->
+            Ok (Node valor Empty Empty)
+
+        Node v izq der ->
+            if valor == v then
+                Err "El valor ya existe en el árbol"
+
+            else if valor < v then
+                case insertarBST valor izq of
+                    Ok nuevoIzq ->
+                        Ok (Node v nuevoIzq der)
+
+                    Err mensaje ->
+                        Err mensaje
+
+            else
+                case insertarBST valor der of
+                    Ok nuevoDer ->
+                        Ok (Node v izq nuevoDer)
+
+                    Err mensaje ->
+                        Err mensaje
+    
 
 
 -- 25. Buscar en BST
@@ -358,7 +426,19 @@ insertarBST valor arbol =
 
 buscarEnBST : comparable -> Tree comparable -> Result String comparable
 buscarEnBST valor arbol =
-    Err "El valor no se encuentra en el árbol"
+    case arbol of
+        Empty ->
+            Err "El valor no se encuentra en el árbol"
+
+        Node v izq der ->
+            if valor == v then
+                Ok v
+
+            else if valor < v then
+                buscarEnBST valor izq
+
+            else
+                buscarEnBST valor der
 
 
 -- 26. Validar BST con Result
@@ -366,7 +446,28 @@ buscarEnBST valor arbol =
 
 validarBST : Tree comparable -> Result String (Tree comparable)
 validarBST arbol =
-    Err "El árbol no es un BST válido"
+    let
+        esValido tree minBound maxBound =
+            case tree of
+                Empty ->
+                    True
+
+                Node val left right ->
+                    (case minBound of
+                        Just min -> val > min
+                        Nothing -> True
+                    )
+                    && (case maxBound of
+                            Just max -> val < max
+                            Nothing -> True
+                        )
+                    && esValido left minBound (Just val)
+                    && esValido right (Just val) maxBound
+    in
+    if esValido arbol Nothing Nothing then
+        Ok arbol
+    else
+        Err "El árbol no es un BST válido"
 
 
 -- ============================================================================
