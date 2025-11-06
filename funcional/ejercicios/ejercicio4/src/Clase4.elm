@@ -480,7 +480,13 @@ validarBST arbol =
 
 maybeAResult : String -> Maybe a -> Result String a
 maybeAResult mensajeError maybe =
+    case maybe of
+        Just valor ->
+            Ok valor
+
+        Nothing ->
     Err mensajeError
+
 
 
 -- 28. Result a Maybe
@@ -488,7 +494,9 @@ maybeAResult mensajeError maybe =
 
 resultAMaybe : Result error value -> Maybe value
 resultAMaybe result =
-    Nothing
+    case result of
+        Ok v -> Just v 
+        err _ -> Nothing
 
 
 -- 29. Buscar y Validar
@@ -496,6 +504,14 @@ resultAMaybe result =
 
 buscarPositivo : Int -> Tree Int -> Result String Int
 buscarPositivo valor arbol =
+    case buscarEnBST valor arbol of
+        Ok v ->
+            if v > 0 then
+                Ok v
+            else
+                Err "El valor no es positivo"
+
+        Err _ ->
     Err "El valor no se encuentra en el árbol"
 
 
@@ -504,6 +520,13 @@ buscarPositivo valor arbol =
 
 validarArbol : Tree Int -> Result String (Tree Int)
 validarArbol arbol =
+    case arbol of 
+        Node v izq der ->
+            if v > 0 then
+                Ok arbol
+            else
+                Err "Validación fallida"
+        Empty ->
     Err "Validación fallida"
 
 
@@ -512,6 +535,16 @@ validarArbol arbol =
 
 buscarEnDosArboles : Int -> Tree Int -> Tree Int -> Result String Int
 buscarEnDosArboles valor arbol1 arbol2 =
+    case buscarEnBST valor arbol1 of
+        Ok v ->
+            Ok v
+
+        Err _ ->
+            case buscarEnBST valor arbol2 of
+                Ok v2 ->
+                    Ok v2
+
+                Err _ ->
     Err "Búsqueda fallida"
 
 
@@ -525,7 +558,9 @@ buscarEnDosArboles valor arbol1 arbol2 =
 
 inorder : Tree a -> List a
 inorder arbol =
-    []
+    case arbol of
+        Empty -> []
+        Node v izq der -> (inorder izq) ++ [v] ++ (inorder der)
 
 
 -- 33. Recorrido Preorder
@@ -533,7 +568,9 @@ inorder arbol =
 
 preorder : Tree a -> List a
 preorder arbol =
-    []
+    case arbol of
+        Empty -> []
+        Node v izq der -> [v] ++ (preorder izq) ++ (preorder der)
 
 
 -- 34. Recorrido Postorder
@@ -541,7 +578,9 @@ preorder arbol =
 
 postorder : Tree a -> List a
 postorder arbol =
-    []
+    case arbol of
+        Empty -> []
+        Node v izq der ->  (postorder izq) ++ (postorder der) ++ [v]
 
 
 -- 35. Map sobre Árbol
@@ -549,7 +588,9 @@ postorder arbol =
 
 mapArbol : (a -> b) -> Tree a -> Tree b
 mapArbol funcion arbol =
-    Empty
+    case arbol of
+        Empty -> Empty
+        Node v izq der -> Node (funcion v) (mapArbol funcion izq) (mapArbol funcion der)
 
 
 -- 36. Filter sobre Árbol
@@ -557,7 +598,18 @@ mapArbol funcion arbol =
 
 filterArbol : (a -> Bool) -> Tree a -> Tree a
 filterArbol predicado arbol =
-    Empty
+    case arbol of
+        Empty -> Empty
+        Node v izq der ->
+            let
+                nuevoIzq = filterArbol predicado izq
+                nuevoDer = filterArbol predicado der
+            in
+            if predicado v then
+                Node v nuevoIzq nuevoDer
+            else
+                arbolfilt nuevoIzq nuevoDer
+
 
 
 -- 37. Fold sobre Árbol
@@ -565,7 +617,14 @@ filterArbol predicado arbol =
 
 foldArbol : (a -> b -> b) -> b -> Tree a -> b
 foldArbol funcion acumulador arbol =
-    acumulador
+    case arbol of
+        Empty -> acumulador
+        Node v izq der ->
+            let
+                acumuladorIzq = foldArbol funcion acumulador izq
+                acumuladorDer = foldArbol funcion acumuladorIzq der
+            in
+            funcion v acumulador
 
 
 -- 38. Eliminar de BST
@@ -573,7 +632,52 @@ foldArbol funcion acumulador arbol =
 
 eliminarBST : comparable -> Tree comparable -> Result String (Tree comparable)
 eliminarBST valor arbol =
+    case arbol of
+        Empty ->
+            Err "El valor no existe en el árbol"
+
+        Node v izq der ->
+            if valor < v then
+                case eliminarBST valor izq of
+                    Ok nuevoIzq ->
+                        Ok (Node v nuevoIzq der)
+
+                    Err mensaje ->
+                        Err mensaje
+
+            else if valor > v then
+                case eliminarBST valor der of
+                    Ok nuevoDer ->
+                        Ok (Node v izq nuevoDer)
+
+                    Err mensaje ->
+                        Err mensaje
+
+            else
+                -- Valor encontrado, proceder a eliminar
+                case (izq, der) of
+                    (Empty, Empty) ->
+                        Ok Empty
+
+                    (Empty, _) ->
+                        Ok der
+
+                    (_, Empty) ->
+                        Ok izq
+
+                    _ ->
+                        case encontrarMinimo der of
+                            Just minDer ->
+                                case eliminarBST minDer der of
+                                    Ok nuevoDer ->
+                                        Ok (Node minDer izq nuevoDer)
+
+                                    Err mensaje ->
+                                        Err mensaje
+
+                            Nothing ->
     Err "El valor no existe en el árbol"
+
 
 
 -- 39. Construir BST desde Lista
@@ -581,6 +685,19 @@ eliminarBST valor arbol =
 
 desdeListaBST : List comparable -> Result String (Tree comparable)
 desdeListaBST lista =
+    case lista of 
+        [] -> Ok Empty
+        x :: xs ->
+            case desdeListaBST xs of
+                Ok arbol ->
+                    case insertarBST x arbol of
+                        Ok nuevoArbol ->
+                            Ok nuevoArbol
+
+                        Err mensaje ->
+                            Err mensaje
+
+                Err mensaje ->
     Err "Valor duplicado"
 
 
@@ -589,7 +706,16 @@ desdeListaBST lista =
 
 estaBalanceado : Tree a -> Bool
 estaBalanceado arbol =
-    False
+    case arbol of
+        Empty -> True
+        Node _ izq der ->
+            let
+                alturaIzq = altura izq
+                alturaDer = altura der
+                diferencia = abs (alturaIzq - alturaDer)
+            in
+            diferencia <= 1 && estaBalanceado izq && estaBalanceado der
+
 
 
 -- 41. Balancear BST
@@ -597,7 +723,25 @@ estaBalanceado arbol =
 
 balancear : Tree comparable -> Tree comparable
 balancear arbol =
-    Empty
+    case arbol of
+        Empty -> Empty
+        _ ->
+            let
+                listaOrdenada = inorder arbol
+
+                construirArbol lista =
+                    case lista of
+                        [] -> Empty
+                        _ ->
+                            let
+                                mid = List.length lista // 2
+                                valorMedio = List.drop mid lista |> List.head |> Maybe.withDefault 0
+                                izquierda = List.take mid lista
+                                derecha = List.drop (mid + 1) lista
+                            in
+                            Node valorMedio (construirArbol izquierda) (construirArbol derecha)
+            in
+            construirArbol listaOrdenada
 
 
 -- 42. Camino a un Valor
@@ -610,6 +754,24 @@ type Direccion
 
 encontrarCamino : a -> Tree a -> Result String (List Direccion)
 encontrarCamino valor arbol =
+    case arbol of
+        Empty ->
+            Err "El valor no existe en el árbol"
+
+        Node v izq der ->
+            if v == valor then
+                Ok []
+            else
+                case encontrarCamino valor izq of
+                    Ok caminoIzq ->
+                        Ok (Izquierda :: caminoIzq)
+
+                    Err _ ->
+                        case encontrarCamino valor der of
+                            Ok caminoDer ->
+                                Ok (Derecha :: caminoDer)
+
+                            Err _ ->
     Err "El valor no existe en el árbol"
 
 
