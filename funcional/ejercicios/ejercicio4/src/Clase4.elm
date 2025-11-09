@@ -780,6 +780,17 @@ encontrarCamino valor arbol =
 
 seguirCamino : List Direccion -> Tree a -> Result String a
 seguirCamino camino arbol =
+    case (camino, arbol) of
+        ([], Node v _ _) ->
+            Ok v
+
+        (Izquierda :: resto, Node _ izq _) ->
+            seguirCamino resto izq
+
+        (Derecha :: resto, Node _ _ der) ->
+            seguirCamino resto der
+
+        _ ->
     Err "Camino inválido"
 
 
@@ -788,6 +799,33 @@ seguirCamino camino arbol =
 
 ancestroComun : comparable -> comparable -> Tree comparable -> Result String comparable
 ancestroComun valor1 valor2 arbol =
+    case arbol of
+        Empty ->
+            Err "Uno o ambos valores no existen en el árbol"
+
+        Node v izq der ->
+            if v == valor1 || v == valor2 then
+                Ok v
+
+            else
+                let
+                    izquierdo = ancestroComun valor1 valor2 izq
+                    derecho = ancestroComun valor1 valor2 der
+                in
+                case (izquierdo, derecho) of
+                    (Ok ancestroIzq, Ok ancestroDer) ->
+                        Ok v
+
+                    (Ok ancestroIzq, Err _) ->
+                        Ok ancestroIzq
+
+                    (Err _, Ok ancestroDer) ->
+                        Ok ancestroDer
+
+                    (Err _, Err _) ->
+    
+
+    
     Err "Uno o ambos valores no existen en el árbol"
 
 
